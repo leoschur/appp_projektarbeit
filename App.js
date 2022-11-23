@@ -1,6 +1,9 @@
 import { StatusBar } from "expo-status-bar";
-import { StyleSheet, Text, View } from "react-native";
-import FetchService from "./fetchservice";
+import { useEffect } from "react";
+import { StyleSheet, Text, View, Dimensions } from "react-native";
+import MapView from "react-native-maps";
+import { requestForegroundPermissionsAsync } from "expo-location";
+import FetchService from "./FechtService";
 
 function cvtToDate(s) {
     const dt = s.split(" ");
@@ -17,9 +20,16 @@ export default function App() {
         // carPark: Aktuell, Frei, Gesamt, Geschlossen, ID, Name, Status, Trend
         const carParks = d.Daten.Parkhaus;
     });
+    let location = undefined;
+
+    useEffect(() => {
+        requestForegroundPermissionsAsync();
+        location = undefined;
+    });
+
     return (
         <View style={styles.container}>
-            <Text>Open up App.js to start working on your app!</Text>
+            <MapView style={styles.map} region={location ? {} : undefined} />
             <StatusBar style="auto" />
         </View>
     );
@@ -31,5 +41,9 @@ const styles = StyleSheet.create({
         backgroundColor: "#fff",
         alignItems: "center",
         justifyContent: "center",
+    },
+    map: {
+        width: Dimensions.get("window").width,
+        height: Dimensions.get("window").height,
     },
 });

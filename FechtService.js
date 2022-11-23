@@ -1,6 +1,7 @@
 import { XMLParser } from "fast-xml-parser";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
+const url = "https://parken.amberg.de:443/wp-content/uploads/pls/pls.xml";
 const xml = `<Daten>
 <Zeitstempel>22.11.2022 20:01:00</Zeitstempel>
 <Parkhaus>
@@ -103,8 +104,6 @@ const parseXML = (xml) => {
 
 export default function FetchService() {
     return new Promise((res, rej) => {
-        const url =
-            "https://parken.amberg.de:443/wp-content/uploads/pls/pls.xml";
         /*
         fetch(url)
             .then((res) => res.text())
@@ -115,7 +114,9 @@ export default function FetchService() {
             });*/
 
         // retrieve new date
-        // setTimeout(() => res(parseXML(xml)), 0);
+        setTimeout(() => {
+            res(parseXML(xml));
+        }, 0);
         let data = res(parseXML(xml));
         // if successful write to storage then resolve
         AsyncStorage.setItem("Daten", JSON.stringify(data.Daten))
