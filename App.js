@@ -1,10 +1,11 @@
 import { StatusBar } from "expo-status-bar";
 import { useEffect, useState } from "react";
 import { StyleSheet, Text, View, Dimensions } from "react-native";
-import MapView from "react-native-maps";
+import MapView, { Marker } from "react-native-maps";
 import { requestForegroundPermissionsAsync } from "expo-location";
 import FetchService from "./FetchService";
 import Geolocation from "@react-native-community/geolocation";
+import parkingSpaces from "./parkingSpaces.json";
 
 function cvtToDate(s) {
     if (s == undefined) return undefined;
@@ -21,8 +22,6 @@ export default function App() {
     const dataFetcher = new FetchService(data, setData);
     const timestamp = data ? cvtToDate(data.Zeitstempel) : undefined;
     console.log(`Timestamp ${cvtToDate(timestamp)}`);
-    const carParks = data?.Parkhaus;
-    console.log(carParks);
 
     useEffect(() => {
         requestForegroundPermissionsAsync();
@@ -44,7 +43,21 @@ export default function App() {
                 region={pos}
                 showsUserLocation={true}
                 followsUserLocation={true}
-            />
+            >
+                {parkingSpaces.features.map((feat, i) => {
+                    parkDeck = data?.Parkhaus?.find((p) => {
+                        p.Name?.split(" ")[0] == feat.properties.name;
+                    });
+                    if (parkDeck != undefined) {
+                    }
+                    return (
+                        <Marker
+                            key={i}
+                            coordinate={new Location(feat.geometry.coordinates)}
+                        />
+                    );
+                })}
+            </MapView>
             <StatusBar style="auto" />
         </View>
     );
