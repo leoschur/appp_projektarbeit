@@ -1,10 +1,11 @@
 import { StatusBar } from "expo-status-bar";
-import { useEffect, useState } from "react";
+import { useEffect, useState, componentDidMount } from "react";
 import { StyleSheet, Text, View, Dimensions } from "react-native";
 import MapView, { Marker } from "react-native-maps";
 import { requestForegroundPermissionsAsync } from "expo-location";
 import FetchService from "./FetchService";
-import Geolocation from "@react-native-community/geolocation";
+import * as Location from "expo-location";
+import Position from "./Position";
 import parkingSpaces from "./parkingSpaces.json";
 
 function cvtToDate(s) {
@@ -17,43 +18,56 @@ function cvtToDate(s) {
 
 export default function App() {
     const [data, setData] = useState(undefined);
-    const [pos, setPos] = useState(new Location(51.1657, 10.4515));
+    const [region, setRegion] = useState();
+    const [pos, setPos] = useState();
 
     const dataFetcher = new FetchService(data, setData);
-    const timestamp = data ? cvtToDate(data.Zeitstempel) : undefined;
-    console.log(`Timestamp ${cvtToDate(timestamp)}`);
 
     useEffect(() => {
         requestForegroundPermissionsAsync();
-        // set current location
-        Geolocation.getCurrentPosition((p) => {
-            setPos(new Location(pos.coords.latitude, pos.coords.longitude));
-        });
+        Location.getCurrentPositionAsync().then((p) =>
+            setRegion({
+                latitude: p.coords.latitude,
+                longitude: p.coords.longitude,
+                latitudeDelta: 0.01,
+                longitudeDelta: 0.02,
+            })
+        );
 
+        // set current Position
         dataFetcher.start();
+
         return () => {
             dataFetcher.stop();
         };
-    });
+    }, []);
 
     return (
         <View style={styles.container}>
             <MapView
                 style={styles.map}
-                region={pos}
+                // region={region}
                 showsUserLocation={true}
                 followsUserLocation={true}
+                initialRegion={region}
             >
                 {parkingSpaces.features.map((feat, i) => {
-                    parkDeck = data?.Parkhaus?.find((p) => {
-                        p.Name?.split(" ")[0] == feat.properties.name;
+                    // console.log(data?.Parkhaus?.map((p) => p.Name));
+                    const parkDeck = data?.Parkhaus?.find((p) => {
+                        p.Name == feat.properties.name;
                     });
                     if (parkDeck != undefined) {
+                        // console.log(parkDeck);
                     }
                     return (
                         <Marker
                             key={i}
-                            coordinate={new Location(feat.geometry.coordinates)}
+                            coordinate={
+                                new Position(
+                                    feat.geometry.coordinates[1],
+                                    feat.geometry.coordinates[0]
+                                )
+                            }
                         />
                     );
                 })}

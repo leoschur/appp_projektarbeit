@@ -1,4 +1,4 @@
-import { XMLParser } from "fast-xml-parser";
+import { XMLParser, XMLValidator } from "fast-xml-parser";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const url = "https://parken.amberg.de:443/wp-content/uploads/pls/pls.xml";
@@ -18,11 +18,19 @@ export default function FetchService(data, setData) {
             .then((res) => res.text())
             .then((xml) => {
                 d = parseXML(xml);
+                console.log(d.Daten.Parkhaus);
+                // FIXME
+                for (const datum of d.Daten.Parkhaus) {
+                    datum.Name = datum.Name.replaceAll(/&#228;/, "ä")
+                        .replaceAll(/&#252;/, "ü")
+                        .replaceAll(/&#223;/, "ß");
+                    console.log(datum.Name);
+                }
                 // TODO error handling
                 if (d.Daten)
                     AsyncStorage.setItem("Daten", JSON.stringify(d.Daten))
                         .then(setData(d.Daten))
-                        .catch((e) => console.log(e));
+                        .catch((e) => console.error(e));
             })
             .catch((e) => {
                 AsyncStorage.getItem("Daten")
@@ -31,12 +39,13 @@ export default function FetchService(data, setData) {
                     })
                     .catch((e) => {
                         // TODO error handling
-                        console.log(e);
+                        console.error(e);
                     });
             });
     };
 
     this.start = function () {
+        this.update();
         this.intervalId = setInterval(this.update, this.updateCycle);
     };
 

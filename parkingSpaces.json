@@ -4,29 +4,7 @@
         {
             "type": "Feature",
             "properties": {
-                "_storage_options": {
-                    "iconUrl": "https://test.amberg.de/fileadmin/openstreetmap/sam_parkhaus_map_position_7.png"
-                },
-                "name": "ACC",
-                "_umap_options": {
-                    "iconUrl": "https://test.amberg.de/fileadmin/openstreetmap/sam_parkhaus_map_position_7.png"
-                }
-            },
-            "geometry": {
-                "type": "Point",
-                "coordinates": [11.860551, 49.441172]
-            }
-        },
-        {
-            "type": "Feature",
-            "properties": {
-                "_storage_options": {
-                    "iconUrl": "https://test.amberg.de/fileadmin/openstreetmap/sam_parkhaus_map_position_8.png"
-                },
-                "name": "Altstadtgarage",
-                "_umap_options": {
-                    "iconUrl": "https://test.amberg.de/fileadmin/openstreetmap/sam_parkhaus_map_position_8.png"
-                }
+                "name": "Altstadtgarage"
             },
             "geometry": {
                 "type": "Point",
@@ -36,29 +14,7 @@
         {
             "type": "Feature",
             "properties": {
-                "_storage_options": {
-                    "iconUrl": "https://test.amberg.de/fileadmin/openstreetmap/sam_parkhaus_map_position_6.png"
-                },
-                "name": "Kino",
-                "_umap_options": {
-                    "iconUrl": "https://test.amberg.de/fileadmin/openstreetmap/sam_parkhaus_map_position_6.png"
-                }
-            },
-            "geometry": {
-                "type": "Point",
-                "coordinates": [11.864709, 49.444705]
-            }
-        },
-        {
-            "type": "Feature",
-            "properties": {
-                "_storage_options": {
-                    "iconUrl": "https://test.amberg.de/fileadmin/openstreetmap/sam_parkhaus_map_position_1.png"
-                },
-                "name": "Kurfürstenbad (Garage)",
-                "_umap_options": {
-                    "iconUrl": "https://test.amberg.de/fileadmin/openstreetmap/sam_parkhaus_map_position_1.png"
-                }
+                "name": "Kurfürstengarage"
             },
             "geometry": {
                 "type": "Point",
@@ -68,13 +24,7 @@
         {
             "type": "Feature",
             "properties": {
-                "_storage_options": {
-                    "iconUrl": "https://test.amberg.de/fileadmin/openstreetmap/sam_parkhaus_map_position_5.png"
-                },
-                "name": "Kurfürstenbad (Parkdeck)",
-                "_umap_options": {
-                    "iconUrl": "https://test.amberg.de/fileadmin/openstreetmap/sam_parkhaus_map_position_5.png"
-                }
+                "name": "Kurfürstenbad"
             },
             "geometry": {
                 "type": "Point",
@@ -84,9 +34,6 @@
         {
             "type": "Feature",
             "properties": {
-                "_umap_options": {
-                    "iconUrl": "https://test.amberg.de/fileadmin/openstreetmap/sam_parkhaus_map_position_9.png"
-                },
                 "name": "Marienstraße"
             },
             "geometry": {
@@ -97,13 +44,7 @@
         {
             "type": "Feature",
             "properties": {
-                "_storage_options": {
-                    "iconUrl": "https://test.amberg.de/fileadmin/openstreetmap/sam_parkhaus_map_position_4.png"
-                },
-                "name": "Parkgarage am Ziegeltor",
-                "_umap_options": {
-                    "iconUrl": "https://test.amberg.de/fileadmin/openstreetmap/sam_parkhaus_map_position_4.png"
-                }
+                "name": "Am Ziegeltor"
             },
             "geometry": {
                 "type": "Point",
@@ -113,15 +54,7 @@
         {
             "type": "Feature",
             "properties": {
-                "_storage_options": {
-                    "iconClass": "Drop",
-                    "iconUrl": "https://test.amberg.de/fileadmin/openstreetmap/sam_parkhaus_map_position_3.png"
-                },
-                "name": "Parkplatz Kräuterwiese",
-                "_umap_options": {
-                    "iconClass": "Drop",
-                    "iconUrl": "https://test.amberg.de/fileadmin/openstreetmap/sam_parkhaus_map_position_3.png"
-                }
+                "name": "Kräuterwiese"
             },
             "geometry": {
                 "type": "Point",
@@ -131,19 +64,7 @@
         {
             "type": "Feature",
             "properties": {
-                "_storage_options": {
-                    "iconUrl": "https://test.amberg.de/fileadmin/openstreetmap/sam_parkhaus_map_position_2.png",
-                    "iconClass": "Drop",
-                    "popupTemplate": "Table",
-                    "showLabel": false
-                },
-                "name": "Theatergarage",
-                "_umap_options": {
-                    "iconUrl": "https://test.amberg.de/fileadmin/openstreetmap/sam_parkhaus_map_position_2.png",
-                    "iconClass": "Drop",
-                    "popupTemplate": "Table",
-                    "showLabel": false
-                }
+                "name": "Theatergarage"
             },
             "geometry": {
                 "type": "Point",
@@ -153,13 +74,7 @@
         {
             "type": "Feature",
             "properties": {
-                "_storage_options": {
-                    "iconUrl": "https://www.amberg.de/fileadmin/openstreetmap/sam_parkhaus_map_position_7.png"
-                },
-                "name": "ACC",
-                "_umap_options": {
-                    "iconUrl": "https://www.amberg.de/fileadmin/openstreetmap/sam_parkhaus_map_position_7.png"
-                }
+                "name": "ACC"
             },
             "geometry": {
                 "type": "Point",
@@ -169,140 +84,13 @@
         {
             "type": "Feature",
             "properties": {
-                "_storage_options": {
-                    "iconUrl": "https://www.amberg.de/fileadmin/openstreetmap/sam_parkhaus_map_position_8.png"
-                },
-                "name": "Altstadtgarage",
-                "_umap_options": {
-                    "iconUrl": "https://www.amberg.de/fileadmin/openstreetmap/sam_parkhaus_map_position_8.png"
-                }
-            },
-            "geometry": {
-                "type": "Point",
-                "coordinates": [11.860935, 49.447865]
-            }
-        },
-        {
-            "type": "Feature",
-            "properties": {
-                "_storage_options": {
-                    "iconUrl": "https://www.amberg.de/fileadmin/openstreetmap/sam_parkhaus_map_position_6.png"
-                },
-                "name": "Kino",
-                "_umap_options": {
-                    "iconUrl": "https://www.amberg.de/fileadmin/openstreetmap/sam_parkhaus_map_position_6.png"
-                }
+                "name": "Kino"
             },
             "geometry": {
                 "type": "Point",
                 "coordinates": [11.864709, 49.444705]
-            }
-        },
-        {
-            "type": "Feature",
-            "properties": {
-                "_storage_options": {
-                    "iconUrl": "https://www.amberg.de/fileadmin/openstreetmap/sam_parkhaus_map_position_1.png"
-                },
-                "name": "Kurfürstenbad (Garage)",
-                "_umap_options": {
-                    "iconUrl": "https://www.amberg.de/fileadmin/openstreetmap/sam_parkhaus_map_position_1.png"
-                }
-            },
-            "geometry": {
-                "type": "Point",
-                "coordinates": [11.860578, 49.441434]
-            }
-        },
-        {
-            "type": "Feature",
-            "properties": {
-                "_storage_options": {
-                    "iconUrl": "https://www.amberg.de/fileadmin/openstreetmap/sam_parkhaus_map_position_5.png"
-                },
-                "name": "Kurfürstenbad (Parkdeck)",
-                "_umap_options": {
-                    "iconUrl": "https://www.amberg.de/fileadmin/openstreetmap/sam_parkhaus_map_position_5.png"
-                }
-            },
-            "geometry": {
-                "type": "Point",
-                "coordinates": [11.85869, 49.442145]
-            }
-        },
-        {
-            "type": "Feature",
-            "properties": {
-                "_umap_options": {
-                    "iconUrl": "https://www.amberg.de/fileadmin/openstreetmap/sam_parkhaus_map_position_9.png"
-                },
-                "name": "Marienstraße"
-            },
-            "geometry": {
-                "type": "Point",
-                "coordinates": [11.866554, 49.444838]
-            }
-        },
-        {
-            "type": "Feature",
-            "properties": {
-                "_storage_options": {
-                    "iconUrl": "https://www.amberg.de/fileadmin/openstreetmap/sam_parkhaus_map_position_4.png"
-                },
-                "name": "Parkgarage am Ziegeltor",
-                "_umap_options": {
-                    "iconUrl": "https://www.amberg.de/fileadmin/openstreetmap/sam_parkhaus_map_position_4.png"
-                }
-            },
-            "geometry": {
-                "type": "Point",
-                "coordinates": [11.856846, 49.448654]
-            }
-        },
-        {
-            "type": "Feature",
-            "properties": {
-                "_storage_options": {
-                    "iconClass": "Drop",
-                    "iconUrl": "https://www.amberg.de/fileadmin/openstreetmap/sam_parkhaus_map_position_3.png"
-                },
-                "name": "Parkplatz Kräuterwiese",
-                "_umap_options": {
-                    "iconClass": "Drop",
-                    "iconUrl": "https://www.amberg.de/fileadmin/openstreetmap/sam_parkhaus_map_position_3.png"
-                }
-            },
-            "geometry": {
-                "type": "Point",
-                "coordinates": [11.852521, 49.449222]
-            }
-        },
-        {
-            "type": "Feature",
-            "properties": {
-                "_storage_options": {
-                    "iconUrl": "https://www.amberg.de/fileadmin/openstreetmap/sam_parkhaus_map_position_2.png",
-                    "iconClass": "Drop",
-                    "popupTemplate": "Table",
-                    "showLabel": false
-                },
-                "name": "Theatergarage",
-                "_umap_options": {
-                    "iconUrl": "https://www.amberg.de/fileadmin/openstreetmap/sam_parkhaus_map_position_2.png",
-                    "iconClass": "Drop",
-                    "popupTemplate": "Table",
-                    "showLabel": false
-                }
-            },
-            "geometry": {
-                "type": "Point",
-                "coordinates": [11.854892, 49.446399]
             }
         }
     ],
-    "_umap_options": {
-        "displayOnLoad": true,
-        "browsable": true,
-        "name": "geojson.json"
-    }
+    "name": "geojson.json"
 }
