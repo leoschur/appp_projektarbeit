@@ -18,15 +18,12 @@ export default function FetchService(data, setData) {
             .then((res) => res.text())
             .then((xml) => {
                 d = parseXML(xml);
-                console.log(d.Daten.Parkhaus);
-                // FIXME
+                // replace relevant unicode chars (caused by fastxml parser)
                 for (const datum of d.Daten.Parkhaus) {
-                    datum.Name = datum.Name.replaceAll(/&#228;/, "ä")
-                        .replaceAll(/&#252;/, "ü")
-                        .replaceAll(/&#223;/, "ß");
-                    console.log(datum.Name);
+                    datum.Name = datum.Name.replace(/&#228;/g, "ä")
+                        .replace(/&#252;/g, "ü")
+                        .replace(/&#223;/g, "ß");
                 }
-                // TODO error handling
                 if (d.Daten)
                     AsyncStorage.setItem("Daten", JSON.stringify(d.Daten))
                         .then(setData(d.Daten))

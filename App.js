@@ -18,21 +18,23 @@ function cvtToDate(s) {
 
 export default function App() {
     const [data, setData] = useState(undefined);
-    const [region, setRegion] = useState();
-    const [pos, setPos] = useState();
+    const [region, setRegion] = useState(undefined);
 
     const dataFetcher = new FetchService(data, setData);
 
     useEffect(() => {
-        requestForegroundPermissionsAsync();
-        Location.getCurrentPositionAsync().then((p) =>
-            setRegion({
-                latitude: p.coords.latitude,
-                longitude: p.coords.longitude,
-                latitudeDelta: 0.01,
-                longitudeDelta: 0.02,
+        requestForegroundPermissionsAsync()
+            .then((_) => {
+                Location.getCurrentPositionAsync().then((p) =>
+                    setRegion({
+                        latitude: p.coords.latitude,
+                        longitude: p.coords.longitude,
+                        latitudeDelta: 0.01,
+                        longitudeDelta: 0.02,
+                    })
+                );
             })
-        );
+            .catch((e) => {});
 
         // set current Position
         dataFetcher.start();
@@ -46,9 +48,8 @@ export default function App() {
         <View style={styles.container}>
             <MapView
                 style={styles.map}
-                // region={region}
-                showsUserLocation={true}
-                followsUserLocation={true}
+                showsUserLocation={region ? true : false}
+                followsUserLocation={region ? true : false}
                 initialRegion={region}
             >
                 {parkingSpaces.features.map((feat, i) => {
