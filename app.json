@@ -26,6 +26,16 @@
         },
         "web": {
             "favicon": "./assets/favicon.png"
+        },
+        "extra": {
+            "PARKING_DATA_ENDPOINT": "https://parken.amberg.de:443/wp-content/uploads/pls/pls.xml",
+            "PARKING_DATA_UPDATECYCLE": 15000,
+            "INITIAL_REGION": {
+                "latitude": 49.445527,
+                "longitude": 11.856425,
+                "latitudeDelta": 0.035,
+                "longitudeDelta": 0.035
+            }
         }
     }
 }

@@ -1,12 +1,14 @@
 import { StatusBar } from "expo-status-bar";
-import { useEffect, useState, componentDidMount } from "react";
-import { StyleSheet, Text, View, Dimensions } from "react-native";
-import MapView, { Marker } from "react-native-maps";
-import { requestForegroundPermissionsAsync } from "expo-location";
-import FetchService from "./FetchService";
-import * as Location from "expo-location";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { StyleSheet, Text, View, Dimensions, ToastAndroid } from "react-native";
+import MapView, { Callout, Marker } from "react-native-maps";
+import { findNearest } from "geolib";
 import Position from "./Position";
 import parkingSpaces from "./parkingSpaces.json";
+import { speak } from "expo-speech";
+import useLocation from "./useLocation";
+import useParkData from "./useParkData";
+import Constants from "expo-constants";
 
 function cvtToDate(s) {
     if (s == undefined) return undefined;
@@ -16,31 +18,65 @@ function cvtToDate(s) {
     return new Date(+d[2], d[1] - 1, +d[0], ...t);
 }
 
-export default function App() {
-    const [data, setData] = useState(undefined);
-    const [region, setRegion] = useState(undefined);
+function percentToColor(v) {
+    switch (true) {
+        case v <= 0.6:
+            return "#4cab3c";
+        case v <= 0.8:
+            return "#ffc724";
+        case v <= 0.95:
+            return "#ef642a";
+        case v <= 1:
+            return "#e92e26";
+        default:
+            return "#7986cb";
+    }
+}
 
-    const dataFetcher = new FetchService(data, setData);
+/**
+ * Converts a geometry feature of type point to a position {longitude, latitude}
+ * @param {feature} feat
+ * @returns {Position} position
+ */
+const featToPos = (feat) =>
+    new Position(feat.geometry.coordinates[1], feat.geometry.coordinates[0]);
+
+export default function App() {
+    const data = useParkData();
+    const location = useLocation();
+    const parkingSpacesLoc = parkingSpaces.features.map(featToPos);
+    // const [nearest, setNearest] = useState(undefined);
+    // const nearestParkingSpace = useMemo(() => {
+    //     if (region != undefined) return;
+    // }, []);
+
+    const updateNearest = async () => {
+        if (region != undefined) return;
+        getCurrentPositionAsync().then((p) => {
+            const curNearest = parkingSpacesLoc.indexOf(
+                findNearest(p.coords, parkingSpacesLoc)
+            );
+            if (nearest != curNearest) {
+                // FIXME nearest is not updated
+                // console.log(`update nearest ${nearest} => ${curNearest}`);
+                // different parking space is closer
+                // setNearest(curNearest);
+                const t = `Parkhaus ${
+                    parkingSpaces.features[curNearest].properties.name ?? "e"
+                } in der Nähe!`;
+                ToastAndroid.show(t, ToastAndroid.SHORT);
+                const s = `${t} Es sind noch ${3} Plätze frei.`;
+                speak(s, { language: "de" });
+            }
+        });
+    };
 
     useEffect(() => {
-        requestForegroundPermissionsAsync()
-            .then((_) => {
-                Location.getCurrentPositionAsync().then((p) =>
-                    setRegion({
-                        latitude: p.coords.latitude,
-                        longitude: p.coords.longitude,
-                        latitudeDelta: 0.01,
-                        longitudeDelta: 0.02,
-                    })
-                );
-            })
-            .catch((e) => {});
-
-        // set current Position
-        dataFetcher.start();
+        // const updateNearestID = setInterval(updateNearest, 1000);
+        // updateNearest();
 
         return () => {
-            dataFetcher.stop();
+            // clearInterval(updateNearestID);
         };
     }, []);
 
@@ -48,28 +84,46 @@ export default function App() {
         <View style={styles.container}>
             <MapView
                 style={styles.map}
-                showsUserLocation={region ? true : false}
-                followsUserLocation={region ? true : false}
-                initialRegion={region}
+                showsUserLocation={!!location}
+                followsUserLocation={!!location}
+                initialRegion={Constants.expoConfig.extra.INITIAL_REGION}
             >
                 {parkingSpaces.features.map((feat, i) => {
-                    // console.log(data?.Parkhaus?.map((p) => p.Name));
-                    const parkDeck = data?.Parkhaus?.find((p) => {
-                        p.Name == feat.properties.name;
-                    });
+                    const parkDeck = data?.Parkhaus.find(
+                        (p) => p.Name == feat.properties.name
+                    );
+                    let color = "#7986cb";
                     if (parkDeck != undefined) {
-                        // console.log(parkDeck);
+                        let c = parkDeck.Aktuell / parkDeck.Gesamt;
+                        color = percentToColor(c);
                     }
                     return (
                         <Marker
-                            key={i}
-                            coordinate={
-                                new Position(
-                                    feat.geometry.coordinates[1],
-                                    feat.geometry.coordinates[0]
-                                )
-                            }
-                        />
+                            title={feat.properties.name}
+                            key={`${i}-${color}`}
+                            pinColor={color}
+                            coordinate={featToPos(feat)}
+                        >
+                            <Callout onPress={() => {}}>
+                                <View>
+                                    <Text>{feat.properties.name}</Text>
+                                    {parkDeck ? (
+                                        <>
+                                            <Text>{`Frei: ${parkDeck.Frei}/${parkDeck.Gesamt}`}</Text>
+                                            <Text>{`Trend: ${
+                                                parkDeck.Trend == -1
+                                                    ? "🙂"
+                                                    : parkDeck.Trend == 0
+                                                    ? "😶"
+                                                    : "☹"
+                                            }`}</Text>
+                                        </>
+                                    ) : (
+                                        <Text>{"No Data available"}</Text>
+                                    )}
+                                </View>
+                            </Callout>
+                        </Marker>
                     );
                 })}
             </MapView>
