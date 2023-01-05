@@ -17,7 +17,7 @@ defineTask(LOC_UPDATE, (payload) => {
 /**
  * Provides a react hook to access the current location of the user
  * requires foreground and background permission to acces location
- * @returns {{accuracy, altitude, altitudeAccuracy, heading, latitude, longitude, speed} | undefined} current location of the user
+ * @returns {{accuracy: number, altitude: number, altitudeAccuracy: number, heading: number, latitude: number, longitude: number, speed: number} | undefined} current location of the user
  */
 export default function useLocation() {
     const [location, setLocation] = useState(undefined);
