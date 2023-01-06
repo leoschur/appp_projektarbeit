@@ -1,16 +1,14 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { StyleSheet, Text, View, Dimensions, ToastAndroid } from "react-native";
-import MapView, { Callout, Marker } from "react-native-maps";
+import MapView, { Callout, Marker, Polyline } from "react-native-maps";
 import {
     Provider,
     Button,
     Dialog,
     Portal,
     IconButton,
-    ToggleButton,
     Checkbox,
 } from "react-native-paper";
-import { getCurrentPositionAsync } from "expo-location";
 import { StatusBar } from "expo-status-bar";
 import { speak } from "expo-speech";
 import Constants from "expo-constants";
@@ -21,6 +19,7 @@ import parkingSpaces from "./parkingSpaces.json";
 import useLocation from "./useLocation";
 import useParkData from "./useParkData";
 import useAsyncStorage from "./useAsyncStorage";
+import usePrevious from "./usePrevious";
 
 function cvtToDate(s) {
     if (s == undefined) return undefined;
@@ -41,7 +40,7 @@ function percentToColor(v) {
         case v <= 1:
             return "#e92e26";
         default:
-            return "#7986cb";
+            return "#154889";
     }
 }
 
@@ -54,10 +53,12 @@ const featToPos = (feat) =>
     new Position(feat.geometry.coordinates[1], feat.geometry.coordinates[0]);
 
 export default function App() {
+    const [showSettings, setSettings] = useState(false);
+    const toggleSettings = () => setSettings(!showSettings);
+    const mapRef = useRef();
     const data = useParkData();
     const location = useLocation();
     const parkingSpacesLoc = parkingSpaces.features.map(featToPos);
-    // const [nearest, setNearest] = useState(undefined);
     /**
      * @type {number | undefined} index of nearest in parkingSpaces
      */
@@ -66,26 +67,13 @@ export default function App() {
         return parkingSpacesLoc.indexOf(
             findNearest(location, parkingSpacesLoc)
         );
-        // if (nearest != curNearest) {
-        //     // FIXME nearest is not updated
-        //     // console.log(`update nearest ${nearest} => ${curNearest}`);
-        //     // different parking space is closer
-        //     // setNearest(curNearest);
-        //     const t = `Parkhaus ${
-        //         parkingSpaces.features[curNearest].properties.name ?? "e"
-        //     } in der Nähe!`;
-        //     ToastAndroid.show(t, ToastAndroid.SHORT);
-        //     const s = `${t} Es sind noch ${3} Plätze frei.`;
-        //     speak(s, { language: "de" });
-        // }
     }, [location]);
-
-    const [showSettings, setSettings] = useState(false);
-    const toggleSettings = () => setSettings(!showSettings);
+    const previousNearest = usePrevious(nearestParkingSpace);
     /**
      * @type {[boolean, (v: boolean) => void]}
      */
     const [mute, setMute] = useAsyncStorage("mute", false);
+    const [showLine, setShowLine] = useAsyncStorage("showLine", true);
     const [favorites, setFavorites] = useAsyncStorage(
         "favorites",
         parkingSpaces.features.reduce(
@@ -94,22 +82,29 @@ export default function App() {
         )
     );
 
-    const updateNearest = async () => {};
-
-    useEffect(() => {
-        // const updateNearestID = setInterval(updateNearest, 1000);
-        // updateNearest();
-
-        return () => {
-            // clearInterval(updateNearestID);
-        };
-    }, []);
+    if (previousNearest != nearestParkingSpace) {
+        const nearest =
+            parkingSpaces.features[nearestParkingSpace].properties.name;
+        const free = data.Parkhaus.find((d) => d.Name == nearest).Frei;
+        const t = `Parkhaus ${nearest ?? "e"} in der Nähe!`;
+        console.info(t);
+        ToastAndroid.show(t, ToastAndroid.SHORT);
+        const s = `${t} ${
+            free
+                ? `Es ${free == 1 ? "ist" : "sind"} noch ${free} ${
+                      free == 1 ? "Platz" : "Plätze"
+                  } frei.`
+                : "Alle Parkplätze sind belegt."
+        }`;
+        if (!mute) speak(s, { language: "de" });
+    }
 
     return (
         <Provider>
             <View style={styles.container}>
                 <StatusBar style="auto" />
                 <MapView
+                    ref={mapRef}
                     style={styles.map}
                     showsUserLocation={!!location}
                     followsUserLocation={!!location}
@@ -119,7 +114,7 @@ export default function App() {
                         const parkDeck = data?.Parkhaus.find(
                             (p) => p.Name == feat.properties.name
                         );
-                        let color = "#7986cb";
+                        let color = "#154889";
                         if (parkDeck != undefined) {
                             let c = parkDeck.Aktuell / parkDeck.Gesamt;
                             color = percentToColor(c);
@@ -134,7 +129,11 @@ export default function App() {
                                 >
                                     <Callout onPress={() => {}}>
                                         <View>
-                                            <Text>{feat.properties.name}</Text>
+                                            <Text
+                                                style={{ fontWeight: "bold" }}
+                                            >
+                                                {feat.properties.name}
+                                            </Text>
                                             {parkDeck ? (
                                                 <>
                                                     <Text>{`Frei: ${parkDeck.Frei}/${parkDeck.Gesamt}`}</Text>
@@ -144,7 +143,7 @@ export default function App() {
                                                             : parkDeck.Trend ==
                                                               0
                                                             ? "😶"
-                                                            : "☹"
+                                                            : "🙁"
                                                     }`}</Text>
                                                 </>
                                             ) : (
@@ -158,6 +157,16 @@ export default function App() {
                             )
                         );
                     })}
+                    {location != undefined && showLine && (
+                        <Polyline
+                            coordinates={[
+                                location,
+                                parkingSpacesLoc[nearestParkingSpace],
+                            ]}
+                            strokeColor="#154889"
+                            strokeWidth={2}
+                        />
+                    )}
                 </MapView>
                 {/* Settings */}
                 <Portal>
@@ -173,7 +182,23 @@ export default function App() {
                                     }}
                                 />
                             </View>
-                            <Text style={styles.centerText}>Favoriten</Text>
+                            <View style={styles.option}>
+                                <Text>Linie zu nächsten Parkplatz</Text>
+                                <Checkbox
+                                    status={showLine ? "checked" : "unchecked"}
+                                    onPress={() => {
+                                        setShowLine(!showLine);
+                                    }}
+                                />
+                            </View>
+                            <Text
+                                style={{
+                                    ...styles.centerText,
+                                    fontWeight: "bold",
+                                }}
+                            >
+                                Favoriten
+                            </Text>
                             <View>
                                 {parkingSpaces.features.map(
                                     ({ properties: { name } }, i) => (
