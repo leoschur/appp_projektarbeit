@@ -6,9 +6,9 @@ import {
     startLocationUpdatesAsync,
     LocationAccuracy,
 } from "expo-location";
+import { ToastAndroid } from "react-native";
 
 const LOC_UPDATE = "LOC_UPDATE";
-
 let executor = undefined;
 defineTask(LOC_UPDATE, (payload) => {
     if (executor) executor(payload);
@@ -25,7 +25,10 @@ export default function useLocation() {
     useEffect(() => {
         executor = ({ data: { locations }, error }) => {
             if (error) {
-                console.error(error);
+                ToastAndroid.show(
+                    "Standort konnte nicht abgerufen werden.",
+                    ToastAndroid.SHORT
+                );
             } else {
                 if (locations != undefined) {
                     setLocation(locations[0].coords);
@@ -33,15 +36,25 @@ export default function useLocation() {
             }
         };
 
-        requestForegroundPermissionsAsync()
-            .then(() => {
-                requestBackgroundPermissionsAsync().then(() => {
-                    startLocationUpdatesAsync(LOC_UPDATE, {
-                        accuracy: LocationAccuracy.BestForNavigation,
-                    });
+        requestForegroundPermissionsAsync().then((res) => {
+            if (res.granted) {
+                requestBackgroundPermissionsAsync().then((res) => {
+                    if (res.granted) {
+                        startLocationUpdatesAsync(LOC_UPDATE, {
+                            accuracy: LocationAccuracy.BestForNavigation,
+                        });
+                    } else
+                        ToastAndroid.show(
+                            "Standortberechtigung verweigert.",
+                            ToastAndroid.SHORT
+                        );
                 });
-            })
-            .catch((e) => console.error("Permission denied!\n", e));
+            } else
+                ToastAndroid.show(
+                    "Standortberechtigung verweigert.",
+                    ToastAndroid.SHORT
+                );
+        });
 
         return () => {
             executor = undefined;

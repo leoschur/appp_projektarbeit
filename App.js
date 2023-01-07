@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { StyleSheet, Text, View, Dimensions, ToastAndroid } from "react-native";
 import MapView, { Callout, Marker, Polyline } from "react-native-maps";
 import {
@@ -58,22 +58,17 @@ export default function App() {
     const mapRef = useRef();
     const data = useParkData();
     const location = useLocation();
-    const parkingSpacesLoc = parkingSpaces.features.map(featToPos);
-    /**
-     * @type {number | undefined} index of nearest in parkingSpaces
-     */
-    const nearestParkingSpace = useMemo(() => {
-        if (location == undefined) return undefined;
-        return parkingSpacesLoc.indexOf(
-            findNearest(location, parkingSpacesLoc)
-        );
-    }, [location]);
-    const previousNearest = usePrevious(nearestParkingSpace);
     /**
      * @type {[boolean, (v: boolean) => void]}
      */
     const [mute, setMute] = useAsyncStorage("mute", false);
+    /**
+     * @type {[boolean, (v: boolean) => void]}
+     */
     const [showLine, setShowLine] = useAsyncStorage("showLine", true);
+    /**
+     * @type {[{[name: string]: boolean}, function({[name: string]: boolean}): void]}
+     */
     const [favorites, setFavorites] = useAsyncStorage(
         "favorites",
         parkingSpaces.features.reduce(
@@ -81,13 +76,35 @@ export default function App() {
             {}
         )
     );
+    /**
+     * @type {string | undefined} name of nearest in parkingSpaces
+     */
+    const nearestParkingSpace = useMemo(() => {
+        if (location == undefined) return undefined;
+        const filteredPS = parkingSpaces.features.filter(
+            (feat) => favorites[feat.properties.name]
+        );
+        const filteredPSPos = filteredPS.map((feat) => featToPos(feat));
+        const nearestFromFiltered = filteredPSPos.indexOf(
+            findNearest(location, filteredPSPos)
+        );
+        return filteredPS[nearestFromFiltered].properties.name;
+    }, [location]);
+    /**
+     * contains the last value from nearestParkingSpace
+     * @type {string}
+     */
+    const previousNearest = usePrevious(nearestParkingSpace);
 
     if (previousNearest != nearestParkingSpace) {
-        const nearest =
-            parkingSpaces.features[nearestParkingSpace].properties.name;
-        const free = data.Parkhaus.find((d) => d.Name == nearest).Frei;
+        const nearest = parkingSpaces.features.find(
+            (feat) => feat.properties.name == nearestParkingSpace
+        ).properties.name;
+        // if no data is available leave blank
+        const free = data
+            ? data.Parkhaus.find((d) => d.Name == nearest).Frei
+            : " ";
         const t = `Parkhaus ${nearest ?? "e"} in der Nähe!`;
-        console.info(t);
         ToastAndroid.show(t, ToastAndroid.SHORT);
         const s = `${t} ${
             free
@@ -148,7 +165,7 @@ export default function App() {
                                                 </>
                                             ) : (
                                                 <Text>
-                                                    {"No Data available"}
+                                                    {"Keine Daten verfügbar"}
                                                 </Text>
                                             )}
                                         </View>
@@ -161,7 +178,13 @@ export default function App() {
                         <Polyline
                             coordinates={[
                                 location,
-                                parkingSpacesLoc[nearestParkingSpace],
+                                featToPos(
+                                    parkingSpaces.features.find(
+                                        (feat) =>
+                                            feat.properties.name ==
+                                            nearestParkingSpace
+                                    )
+                                ),
                             ]}
                             strokeColor="#154889"
                             strokeWidth={2}

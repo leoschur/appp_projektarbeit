@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
  * provides access to async storage via react state
  * @param {string} key
  * @param {any} initialState
- * @returns {[any, (any) => void]} value and setter
+ * @returns {[any, (value: any) => void]} value and setter
  */
 export default function useAsyncStorage(key, initialState) {
     const [value, setValue] = useState(initialState);

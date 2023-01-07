@@ -3,6 +3,7 @@ import { decode } from "html-entities";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useEffect, useState } from "react";
 import Constants from "expo-constants";
+import { ToastAndroid } from "react-native";
 
 const parseXML = (xml) => {
     const parser = new XMLParser();
@@ -29,20 +30,40 @@ export default function useParkData() {
                     datum.Name = decode(datum.Name);
                 }
                 if (d.Daten)
-                    AsyncStorage.setItem("Daten", JSON.stringify(d.Daten))
-                        .then(setData(d.Daten))
-                        .catch((e) => console.error(e));
+                    AsyncStorage.setItem("Daten", JSON.stringify(d.Daten)).then(
+                        () => setData(d.Daten)
+                    );
             })
             .catch((e) => {
-                console.warn("Data could not be feched\n", e);
+                ToastAndroid.show(
+                    "Parkhausdaten konnten nicht abgerufen werden.",
+                    ToastAndroid.SHORT
+                );
+                ToastAndroid.show(
+                    "Zuletzt gespeicherte Daten werden geladen.",
+                    ToastAndroid.SHORT
+                );
                 AsyncStorage.getItem("Daten")
-                    .then((d) => {
-                        // TODO check if Date is from today
-                        setData(JSON.parse(d));
+                    .then((dataString) => {
+                        // check if data is from today else discard
+                        const d = JSON.parse(dataString);
+                        const [day, month, year] =
+                            d.Zeitstempel.split(" ")[0].split(".");
+                        const date = new Date(year, month - 1, day);
+                        const now = new Date();
+                        if (
+                            date.getFullYear() == now.getFullYear &&
+                            date.getMonth == now.getMonth &&
+                            date.getDate() == now.getDate()
+                        ) {
+                            setData(d);
+                        } else throw "No current data available";
                     })
                     .catch((e) => {
-                        // TODO error handling
-                        console.error("No Data availabe\n", e);
+                        ToastAndroid.show(
+                            "Keine lokalen Daten verfügbar.",
+                            ToastAndroid.SHORT
+                        );
                     });
             });
     };
