@@ -96,6 +96,8 @@ export default function App() {
      */
     const previousNearest = usePrevious(nearestParkingSpace);
 
+    // custom geofencing
+    // react if an other parking space is closer than the previous closest
     if (previousNearest != nearestParkingSpace) {
         const nearest = parkingSpaces.features.find(
             (feat) => feat.properties.name == nearestParkingSpace
@@ -105,7 +107,6 @@ export default function App() {
             ? data.Parkhaus.find((d) => d.Name == nearest).Frei
             : " ";
         const t = `Parkhaus ${nearest ?? "e"} in der Nähe!`;
-        ToastAndroid.show(t, ToastAndroid.SHORT);
         const s = `${t} ${
             free
                 ? `Es ${free == 1 ? "ist" : "sind"} noch ${free} ${
@@ -113,6 +114,7 @@ export default function App() {
                   } frei.`
                 : "Alle Parkplätze sind belegt."
         }`;
+        ToastAndroid.show(t, ToastAndroid.SHORT);
         if (!mute) speak(s, { language: "de" });
     }
 
