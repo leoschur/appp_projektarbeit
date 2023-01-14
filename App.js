@@ -12,6 +12,7 @@ import {
 import { StatusBar } from "expo-status-bar";
 import { speak } from "expo-speech";
 import Constants from "expo-constants";
+import { SafeAreaProvider } from "react-native-safe-area-context";
 import { findNearest } from "geolib";
 // own imports
 import Position from "./Position";
@@ -20,6 +21,7 @@ import useLocation from "./useLocation";
 import useParkData from "./useParkData";
 import useAsyncStorage from "./useAsyncStorage";
 import usePrevious from "./usePrevious";
+import Padding from "./Padding";
 
 function cvtToDate(s) {
     if (s == undefined) return undefined;
@@ -107,167 +109,168 @@ export default function App() {
             ? data.Parkhaus.find((d) => d.Name == nearest).Frei
             : " ";
         const t = `Parkhaus ${nearest ?? "e"} in der Nähe!`;
-        const s = `${t} ${
-            free
-                ? `Es ${free == 1 ? "ist" : "sind"} noch ${free} ${
-                      free == 1 ? "Platz" : "Plätze"
-                  } frei.`
-                : "Alle Parkplätze sind belegt."
-        }`;
+        const s = `${t} ${free
+            ? `Es ${free == 1 ? "ist" : "sind"} noch ${free} ${free == 1 ? "Platz" : "Plätze"
+            } frei.`
+            : "Alle Parkplätze sind belegt."
+            }`;
         ToastAndroid.show(t, ToastAndroid.SHORT);
         if (!mute) speak(s, { language: "de" });
     }
 
     return (
-        <Provider>
-            <View style={styles.container}>
-                <StatusBar style="auto" />
-                <MapView
-                    ref={mapRef}
-                    style={styles.map}
-                    showsUserLocation={!!location}
-                    followsUserLocation={!!location}
-                    initialRegion={Constants.expoConfig.extra.INITIAL_REGION}
-                >
-                    {parkingSpaces.features.map((feat, i) => {
-                        const parkDeck = data?.Parkhaus.find(
-                            (p) => p.Name == feat.properties.name
-                        );
-                        let color = "#154889";
-                        if (parkDeck != undefined) {
-                            let c = parkDeck.Aktuell / parkDeck.Gesamt;
-                            color = percentToColor(c);
-                        }
-                        return (
-                            favorites[feat.properties.name] && (
-                                <Marker
-                                    title={feat.properties.name}
-                                    key={`${i}-${color}`}
-                                    pinColor={color}
-                                    coordinate={featToPos(feat)}
-                                >
-                                    <Callout onPress={() => {}}>
-                                        <View>
-                                            <Text
-                                                style={{ fontWeight: "bold" }}
-                                            >
-                                                {feat.properties.name}
-                                            </Text>
-                                            {parkDeck ? (
-                                                <>
-                                                    <Text>{`Frei: ${parkDeck.Frei}/${parkDeck.Gesamt}`}</Text>
-                                                    <Text>{`Trend: ${
-                                                        parkDeck.Trend == -1
+        <SafeAreaProvider>
+            <Provider>
+                <Padding />
+                <View style={styles.container}>
+                    <StatusBar style="auto" />
+                    <MapView
+                        ref={mapRef}
+                        style={styles.map}
+                        showsUserLocation={!!location}
+                        followsUserLocation={!!location}
+                        initialRegion={Constants.expoConfig.extra.INITIAL_REGION}
+                    >
+                        {parkingSpaces.features.map((feat, i) => {
+                            const parkDeck = data?.Parkhaus.find(
+                                (p) => p.Name == feat.properties.name
+                            );
+                            let color = "#154889";
+                            if (parkDeck != undefined) {
+                                let c = parkDeck.Aktuell / parkDeck.Gesamt;
+                                color = percentToColor(c);
+                            }
+                            return (
+                                favorites[feat.properties.name] && (
+                                    <Marker
+                                        title={feat.properties.name}
+                                        key={`${i}-${color}`}
+                                        pinColor={color}
+                                        coordinate={featToPos(feat)}
+                                    >
+                                        <Callout onPress={() => { }}>
+                                            <View>
+                                                <Text
+                                                    style={{ fontWeight: "bold" }}
+                                                >
+                                                    {feat.properties.name}
+                                                </Text>
+                                                {parkDeck ? (
+                                                    <>
+                                                        <Text>{`Frei: ${parkDeck.Frei}/${parkDeck.Gesamt}`}</Text>
+                                                        <Text>{`Trend: ${parkDeck.Trend == -1
                                                             ? "🙂"
                                                             : parkDeck.Trend ==
-                                                              0
-                                                            ? "😶"
-                                                            : "🙁"
-                                                    }`}</Text>
-                                                </>
-                                            ) : (
-                                                <Text>
-                                                    {"Keine Daten verfügbar"}
-                                                </Text>
-                                            )}
-                                        </View>
-                                    </Callout>
-                                </Marker>
-                            )
-                        );
-                    })}
-                    {location != undefined && showLine && (
-                        <Polyline
-                            coordinates={[
-                                location,
-                                featToPos(
-                                    parkingSpaces.features.find(
-                                        (feat) =>
-                                            feat.properties.name ==
-                                            nearestParkingSpace
-                                    )
-                                ),
-                            ]}
-                            strokeColor="#154889"
-                            strokeWidth={2}
-                        />
-                    )}
-                </MapView>
-                {/* Settings */}
-                <Portal>
-                    <Dialog visible={showSettings} onDismiss={toggleSettings}>
-                        <Dialog.Title>Einstellungen</Dialog.Title>
-                        <Dialog.Content style={styles.settingsContent}>
-                            <View style={styles.option}>
-                                <Text>Sprachausgabe</Text>
-                                <Checkbox
-                                    status={mute ? "unchecked" : "checked"}
-                                    onPress={() => {
-                                        setMute(!mute);
+                                                                0
+                                                                ? "😶"
+                                                                : "🙁"
+                                                            }`}</Text>
+                                                    </>
+                                                ) : (
+                                                    <Text>
+                                                        {"Keine Daten verfügbar"}
+                                                    </Text>
+                                                )}
+                                            </View>
+                                        </Callout>
+                                    </Marker>
+                                )
+                            );
+                        })}
+                        {location != undefined && showLine && (
+                            <Polyline
+                                coordinates={[
+                                    location,
+                                    featToPos(
+                                        parkingSpaces.features.find(
+                                            (feat) =>
+                                                feat.properties.name ==
+                                                nearestParkingSpace
+                                        )
+                                    ),
+                                ]}
+                                strokeColor="#154889"
+                                strokeWidth={2}
+                            />
+                        )}
+                    </MapView>
+                    {/* Settings */}
+                    <Portal>
+                        <Dialog visible={showSettings} onDismiss={toggleSettings}>
+                            <Dialog.Title>Einstellungen</Dialog.Title>
+                            <Dialog.Content style={styles.settingsContent}>
+                                <View style={styles.option}>
+                                    <Text>Sprachausgabe</Text>
+                                    <Checkbox
+                                        status={mute ? "unchecked" : "checked"}
+                                        onPress={() => {
+                                            setMute(!mute);
+                                        }}
+                                    />
+                                </View>
+                                <View style={styles.option}>
+                                    <Text>Linie zu nächsten Parkplatz</Text>
+                                    <Checkbox
+                                        status={showLine ? "checked" : "unchecked"}
+                                        onPress={() => {
+                                            setShowLine(!showLine);
+                                        }}
+                                    />
+                                </View>
+                                <Text
+                                    style={{
+                                        ...styles.centerText,
+                                        fontWeight: "bold",
                                     }}
-                                />
-                            </View>
-                            <View style={styles.option}>
-                                <Text>Linie zu nächsten Parkplatz</Text>
-                                <Checkbox
-                                    status={showLine ? "checked" : "unchecked"}
-                                    onPress={() => {
-                                        setShowLine(!showLine);
-                                    }}
-                                />
-                            </View>
-                            <Text
-                                style={{
-                                    ...styles.centerText,
-                                    fontWeight: "bold",
-                                }}
-                            >
-                                Favoriten
-                            </Text>
-                            <View>
-                                {parkingSpaces.features.map(
-                                    ({ properties: { name } }, i) => (
-                                        <View key={i} style={styles.option}>
-                                            <Text>{name}</Text>
-                                            <Checkbox
-                                                status={
-                                                    favorites[name]
-                                                        ? "checked"
-                                                        : "unchecked"
-                                                }
-                                                onPress={() => {
-                                                    setFavorites({
-                                                        ...favorites,
-                                                        [name]: !favorites[
-                                                            name
-                                                        ],
-                                                    });
-                                                }}
-                                            />
-                                        </View>
-                                    )
-                                )}
-                            </View>
-                        </Dialog.Content>
-                        <Dialog.Actions>
-                            <Button onPress={toggleSettings}>Fertig</Button>
-                        </Dialog.Actions>
-                    </Dialog>
-                </Portal>
-                <IconButton
-                    style={styles.iconButton}
-                    icon="cog"
-                    size={40}
-                    onPress={toggleSettings}
-                ></IconButton>
-            </View>
-        </Provider>
+                                >
+                                    Favoriten
+                                </Text>
+                                <View>
+                                    {parkingSpaces.features.map(
+                                        ({ properties: { name } }, i) => (
+                                            <View key={i} style={styles.option}>
+                                                <Text>{name}</Text>
+                                                <Checkbox
+                                                    status={
+                                                        favorites[name]
+                                                            ? "checked"
+                                                            : "unchecked"
+                                                    }
+                                                    onPress={() => {
+                                                        setFavorites({
+                                                            ...favorites,
+                                                            [name]: !favorites[
+                                                                name
+                                                            ],
+                                                        });
+                                                    }}
+                                                />
+                                            </View>
+                                        )
+                                    )}
+                                </View>
+                            </Dialog.Content>
+                            <Dialog.Actions>
+                                <Button onPress={toggleSettings}>Fertig</Button>
+                            </Dialog.Actions>
+                        </Dialog>
+                    </Portal>
+                    <IconButton
+                        style={styles.iconButton}
+                        icon="cog"
+                        size={40}
+                        onPress={toggleSettings}
+                    ></IconButton>
+                </View>
+            </Provider>
+        </SafeAreaProvider>
     );
 }
 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
+        position: "relative",
         backgroundColor: "#fff",
         alignItems: "center",
         justifyContent: "center",
