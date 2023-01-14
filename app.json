@@ -4,6 +4,7 @@
         "slug": "PAmberg",
         "version": "1.0.0",
         "orientation": "portrait",
+        "entryPoint": "./App.jsx",
         "icon": "./assets/icon.png",
         "userInterfaceStyle": "light",
         "splash": {
@@ -14,7 +15,9 @@
         "updates": {
             "fallbackToCacheTimeout": 0
         },
-        "assetBundlePatterns": ["**/*"],
+        "assetBundlePatterns": [
+            "**/*"
+        ],
         "ios": {
             "supportsTablet": true
         },
